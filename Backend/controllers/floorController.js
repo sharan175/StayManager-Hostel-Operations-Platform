@@ -14,3 +14,17 @@ export  const createFloor=async(req,res)=>{
         }
     
 }
+export  const deleteFloor=async(req,res)=>{
+    try{
+        const {floor}=req.body;
+        const result=await pool.query("DELETE FROM floors WHERE floor_number=($1) RETURNING *",
+            [floor]);
+            res.json(result.rows[0]);
+
+        
+    }
+        catch(err){
+            res.status(500).json({error: err.message})
+        }
+    
+}
