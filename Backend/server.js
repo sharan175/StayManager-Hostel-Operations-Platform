@@ -4,7 +4,30 @@ import floorRoutes from "./routes/floorRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 import foodmenuRoutes from "./routes/foodmenuRoutes.js";
 import foodlistRoutes from "./routes/foodlistRoutes.js";
+import passport from "./config/passport.js";
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const app = express();
+
+app.use(express.json());
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
 
 app.use(express.json());
 app.use(cors());
