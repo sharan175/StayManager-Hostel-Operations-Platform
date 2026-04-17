@@ -1,6 +1,6 @@
 import express from "express";
 import { isAuth } from "../middleware/authMiddleware.js";
-import { requireStudent } from "../middleware/studentMiddleware.js";
+
 
 const router = express.Router();
 
@@ -12,7 +12,7 @@ router.get("/complete-profile", isAuth, (req, res) => {
 router.get(
   "/student/dashboard",
   isAuth,
-  requireStudent,
+
   (req, res) => {
     res.send("Student Dashboard");
   }
