@@ -394,41 +394,109 @@ useEffect(() => {
             ))}
           </div>
 
-          {/* Auth */}
+         {/* Auth */}
           <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: 12 }}>
             {isLoggedIn ? (
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+
+                {/* Role badge */}
+                {user?.role === "user" ? (
+                  <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#dc2626", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 20, padding: "4px 12px" }}>
+                    ⚠️ Contact Admin
+                  </span>
+                ) : (
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#2563eb", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 20, padding: "4px 12px" }}>
+                    {user?.role === "admin" && "🛡️ Admin"}
+                    {user?.role === "warden" && "🏠 Warden"}
+                    {user?.role === "cook" && "🍽️ Cook"}
+                    {user?.role === "student" && "🎓 Student"}
+                  </span>
+                )}
+
+                {/* Dashboard button */}
+                {user?.role !== "user" && user?.role && (
+                  <button
+                    className="btn-primary"
+                    style={{ padding: "8px 16px", fontSize: "0.88rem" }}
+                    onClick={() => navigate(`/${user.role}`)}
+                  >
+                    Dashboard →
+                  </button>
+                )}
+
+                {/* Avatar */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#f1f5f9", borderRadius: 30, padding: "6px 14px" }}>
                   <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg,#2563eb,#6366f1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "0.75rem", fontWeight: 700 }}>
                     {user?.name?.charAt(0).toUpperCase()}
                   </div>
                   <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#374151" }}>{user?.name?.split(" ")[0]}</span>
                 </div>
+
                 <button className="btn-outline" onClick={handleLogout} style={{ padding: "8px 16px" }}>Logout</button>
               </div>
             ) : (
               <button className="btn-primary" onClick={() => setShowLogin(true)}>Login</button>
             )}
-          </div>
+          </div>  {/* ← closes desktop-nav auth div */}
 
           {/* Mobile Hamburger */}
           <button className="mobile-menu-btn" onClick={() => setMenuOpen(p => !p)} style={{ background: "none", border: "none", cursor: "pointer", padding: 8, color: scrolled ? "#0f172a" : "#fff", fontSize: "1.4rem" }}>
             {menuOpen ? "✕" : "☰"}
           </button>
         </div>
-
         {/* Mobile Menu */}
-        {menuOpen && (
-          <div className="mobile-menu" style={{ background: "#fff", padding: "16px 5%", borderTop: "1px solid #f1f5f9", display: "flex", flexDirection: "column", gap: 16 }}>
-            {NAV_LINKS.map(link => (
-              <span key={link} style={{ fontWeight: 600, color: "#374151", cursor: "pointer", fontSize: "0.95rem" }} onClick={() => scrollTo(link.toLowerCase())}>{link}</span>
-            ))}
-            {isLoggedIn
-              ? <button className="btn-outline" onClick={handleLogout}>Logout ({user?.name?.split(" ")[0]})</button>
-              : <button className="btn-primary" onClick={() => { setShowLogin(true); setMenuOpen(false); }}>Login</button>
-            }
-          </div>
+        {/* Mobile Menu */}
+{menuOpen && (
+  <div className="mobile-menu" style={{ background: "#fff", padding: "16px 5% 20px", borderTop: "1px solid #f1f5f9", display: "flex", flexDirection: "column", gap: 14 }}>
+    {NAV_LINKS.map(link => (
+      <span key={link} style={{ fontWeight: 600, color: "#374151", cursor: "pointer", fontSize: "0.95rem" }} onClick={() => scrollTo(link.toLowerCase())}>{link}</span>
+    ))}
+
+    {isLoggedIn ? (
+      <>
+        {/* Role badge */}
+        <div>
+          {user?.role === "user" ? (
+            <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "#dc2626", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 20, padding: "5px 14px" }}>
+              ⚠️ Contact Admin
+            </span>
+          ) : (
+            <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "#2563eb", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 20, padding: "5px 14px" }}>
+              {user?.role === "admin" && "🛡️ Admin"}
+              {user?.role === "warden" && "🏠 Warden"}
+              {user?.role === "cook" && "🍽️ Cook"}
+              {user?.role === "student" && "🎓 Student"}
+            </span>
+          )}
+        </div>
+
+        {/* Dashboard button */}
+        {user?.role !== "user" && user?.role && (
+          <button
+            className="btn-primary"
+            style={{ width: "100%", padding: "10px 16px", fontSize: "0.92rem" }}
+            onClick={() => { navigate(`/${user.role}`); setMenuOpen(false); }}
+          >
+            Dashboard →
+          </button>
         )}
+
+        {/* User name + logout */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8faff", borderRadius: 12, padding: "10px 14px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "linear-gradient(135deg,#2563eb,#6366f1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "0.75rem", fontWeight: 700 }}>
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+            <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "#374151" }}>{user?.name?.split(" ")[0]}</span>
+          </div>
+          <button className="btn-outline" onClick={handleLogout} style={{ padding: "6px 14px", fontSize: "0.82rem" }}>Logout</button>
+        </div>
+      </>
+    ) : (
+      <button className="btn-primary" onClick={() => { setShowLogin(true); setMenuOpen(false); }}>Login</button>
+    )}
+  </div>
+)}
       </nav>
 
       {/* HERO CAROUSEL */}

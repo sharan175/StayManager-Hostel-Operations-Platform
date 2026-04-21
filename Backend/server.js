@@ -10,6 +10,10 @@ import userRoutes from "./routes/userRoutes.js";
 import rolecreateRoutes from "./routes/rolecreateRoutes.js"
 import dotenv from "dotenv";
 import session from "express-session";
+import path from "path";
+import { fileURLToPath } from "url";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 dotenv.config();
 
 const app = express();
@@ -39,14 +43,14 @@ app.use(cors({
 
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+app.use("/", floorRoutes);  
+app.use("/", roomRoutes);    
 
-
-app.use("/api", floorRoutes);
-app.use("/api", roomRoutes);
 app.use("/api",foodmenuRoutes);
 app.use("/api",foodlistRoutes);
-app.use("/api",rolecreateRoutes)
+app.use("/roles",rolecreateRoutes)
 app.get("/test", (req, res) => {
   res.json({ message: "Server working" });
 });

@@ -4,7 +4,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import SignUp from './signup.jsx'
-import CompleteProfile from './complete-profile.jsx'   
+import CompleteProfile from './complete-profile.jsx'  
+import AdminDashboard from "./AdminDashboard"; 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -12,7 +13,9 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/complete-profile" element={<CompleteProfile />} />  {/* ← ADD */}
+        <Route path="/complete-profile" element={<CompleteProfile />} /> 
+        <Route path="/admin" element={<AdminDashboard />} />
+
       </Routes>
     </BrowserRouter>
   </StrictMode>,

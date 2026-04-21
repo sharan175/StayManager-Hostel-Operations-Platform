@@ -1,5 +1,6 @@
 import express from "express";
 import passport from "../config/passport.js";
+import { attachRole } from "../middleware/roleMiddleware.js";
 import {
   completeProfile,
   redirectUser,
@@ -43,7 +44,7 @@ router.post("/login", (req, res, next) => {
       });
     }
 
-    // ✅ CREATE SESSION
+    
     req.login(user, (err) => {
       if (err) {
         return res.status(500).json({
@@ -61,12 +62,13 @@ router.post("/login", (req, res, next) => {
 
   })(req, res, next);
 });
-router.get("/user", (req, res) => {
+router.get("/user", attachRole, async (req, res) => {
   if (req.user) {
     return res.json({
       user: {
         name: req.user.name,
         email: req.user.email,
+        role: req.user.role,   
       },
     });
   }
