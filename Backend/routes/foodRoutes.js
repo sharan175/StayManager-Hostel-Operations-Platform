@@ -1,0 +1,28 @@
+
+
+import express from "express";
+import {
+  createFood,
+  getDishesByMenu,
+  uploadDishPhoto,
+  upload,
+  deleteDish
+} from "../controllers/foodlistController.js";
+import {
+  createMenu,
+  getActiveMenu,
+  endMenuEarly,
+} from "../controllers/foodmenuController.js";
+
+const router = express.Router();
+
+
+router.post("/menu", createMenu);                  
+router.get("/menu/active", getActiveMenu);          
+router.patch("/menu/:id/end", endMenuEarly);        
+
+router.post("/dish", createFood);                          
+router.get("/dishes/:menuId", getDishesByMenu);           
+router.post("/dish-photo", upload.single("photo"), uploadDishPhoto); 
+router.delete("/dish/:id", deleteDish);
+export default router;
