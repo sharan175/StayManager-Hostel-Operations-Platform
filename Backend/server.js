@@ -7,6 +7,7 @@ import passport from "./config/passport.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import rolecreateRoutes from "./routes/rolecreateRoutes.js"
+import wardenRoutes from "./routes/wardenRoutes.js"
 import dotenv from "dotenv";
 import session from "express-session";
 import path from "path";
@@ -48,9 +49,8 @@ app.use("/", roomRoutes);
 
 app.use("/food", foodRoutes);
 app.use("/roles",rolecreateRoutes)
-app.get("/test", (req, res) => {
-  res.json({ message: "Server working" });
-});
+app.use("/",wardenRoutes)
+
 const PORT = process.env.PORT||3000 ;
 
 app.listen(PORT, () => {

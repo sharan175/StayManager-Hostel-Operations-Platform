@@ -16,7 +16,7 @@ const SIDEBAR_ITEMS = [
 const API = "http://localhost:3000";
 
 /* ─── Reusable role management panel ─── */
-function RolePanel({ title, icon, addEndpoint, removeEndpoint, extraFields = [] }) {
+function RolePanel({ title, icon, addEndpoint, removeEndpoint, extraFields = [], listKey = "list" }) {
   const [list, setList]       = useState([]);
   const [addForm, setAddForm] = useState({ email: "", ...Object.fromEntries(extraFields.map(f => [f.name, ""])) });
   const [delEmail, setDelEmail] = useState("");
@@ -74,7 +74,7 @@ function RolePanel({ title, icon, addEndpoint, removeEndpoint, extraFields = [] 
       const res  = await fetch(`${API}/roles${addEndpoint}`, { credentials: "include" });
       if (res.ok) {
         const data = await res.json();
-        setList(data.list || []);
+        setList(data[listKey] || []);
       }
     } catch {}
   };
@@ -587,22 +587,15 @@ export default function AdminDashboard() {
 {/* ROOMS */}
 {active === "rooms" && <RoomPanel />}
 
-{/* COMING SOON — student only */}
+{/* STUDENTS */}
 {active === "student" && (
-  <div className="adm-panel" style={{ display: "flex", justifyContent: "center", marginTop: 28 }}>
-    <div className="adm-coming">
-      <div style={{ fontSize: "2.6rem", marginBottom: 12 }}>{currentItem?.icon}</div>
-      <h3 style={{ fontFamily: "'Sora', sans-serif", fontSize: "1.25rem", fontWeight: 800, color: "#0f172a", marginBottom: 10 }}>
-        {currentItem?.label} Management
-      </h3>
-      <p style={{ color: "#64748b", fontSize: "0.87rem", lineHeight: 1.7 }}>
-        This section is under construction.
-      </p>
-      <div style={{ marginTop: 20, display: "inline-block", background: "#eff6ff", color: "#2563eb", borderRadius: 20, padding: "5px 16px", fontSize: "0.74rem", fontWeight: 700 }}>
-        Coming Soon
-      </div>
-    </div>
-  </div>
+  <RolePanel
+    title="Student"
+    icon="🎓"
+    addEndpoint="/student"
+    removeEndpoint="/student"
+    listKey="students"
+  />
 )}
 
         </div>

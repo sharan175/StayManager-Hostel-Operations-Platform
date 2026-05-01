@@ -1,6 +1,6 @@
 import pool from "../config/db.js";
 
-/* ── CREATE menu ── */
+
 export const createMenu = async (req, res) => {
   const client = await pool.connect();
   try {

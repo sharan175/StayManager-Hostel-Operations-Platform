@@ -7,6 +7,7 @@ import SignUp from './signup.jsx'
 import CompleteProfile from './complete-profile.jsx'  
 import AdminDashboard from "./AdminDashboard"
 import CookDashboard from "./CookDashboard"
+import WardenDashboard from "./WardenDashboard";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -16,7 +17,9 @@ createRoot(document.getElementById('root')).render(
         <Route path="/signup" element={<SignUp />} />
         <Route path="/complete-profile" element={<CompleteProfile />} /> 
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/warden" element={<WardenDashboard />} />
         <Route path="/cook" element={<CookDashboard />} />
+        
       </Routes>
     </BrowserRouter>
   </StrictMode>,

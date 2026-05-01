@@ -21,5 +21,5 @@ export const upload = multer({
       ? cb(null, true)
       : cb(new Error("Images only"));
   },
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
