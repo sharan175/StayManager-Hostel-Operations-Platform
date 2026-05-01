@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import rolecreateRoutes from "./routes/rolecreateRoutes.js"
 import wardenRoutes from "./routes/wardenRoutes.js"
+import feesRoutes from "./routes/feesRoutes.js";
 import dotenv from "dotenv";
 import session from "express-session";
 import path from "path";
@@ -46,6 +47,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/", floorRoutes);  
 app.use("/", roomRoutes);    
+app.use("/fees", feesRoutes);
 
 app.use("/food", foodRoutes);
 app.use("/roles",rolecreateRoutes)
