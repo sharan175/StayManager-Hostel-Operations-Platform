@@ -39,8 +39,8 @@ function ComplaintsIcon({ active }) {
 
 const NAV = [
   { id: "profile",    label: "Profile",    icon: ProfileIcon,    wip: false },
-  { id: "students",   label: "Students",   icon: StudentsIcon,   wip: true  },
-  { id: "complaints", label: "Complaints", icon: ComplaintsIcon, wip: true  },
+  { id: "students",   label: "Students",   icon: StudentsIcon,   wip: false },
+  { id: "complaints", label: "Complaints", icon: ComplaintsIcon, wip: false },
 ];
 
 // ─── Stats config ─────────────────────────────────────────────────────────────
@@ -148,6 +148,366 @@ function WipPanel({ label, icon: Icon }) {
       <p style={{ color: "#94a3b8", fontSize: "0.875rem", textAlign: "center", maxWidth: 290, lineHeight: 1.7 }}>
         This section is being built. Check back soon for the full {label.toLowerCase()} management experience.
       </p>
+    </div>
+  );
+}
+
+// ─── Students Panel ────────────────────────────────────────────────────────────
+function StudentsPanel() {
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState(null);
+  const [search, setSearch]     = useState("");
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const res = await fetch(`${API}/warden/student`, { credentials: "include" });
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+        const data = await res.json();
+        // backend returns { message, user } — user is rows array
+        const rows = Array.isArray(data.user) ? data.user : data.user ? [data.user] : [];
+        setStudents(rows);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudents();
+  }, []);
+
+  const filtered = students.filter(s =>
+    s.name?.toLowerCase().includes(search.toLowerCase()) ||
+    String(s.room_number).includes(search)
+  );
+
+  return (
+    <div className="wd-panel">
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: "1.35rem", color: "#0f172a", marginBottom: 4, letterSpacing: "-0.01em" }}>
+          Students
+        </h2>
+        <p style={{ color: "#94a3b8", fontSize: "0.85rem" }}>All students assigned to your floor</p>
+      </div>
+
+      {/* Search bar */}
+      <div style={{ marginBottom: 20, position: "relative" }}>
+        <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", fontSize: "0.95rem", pointerEvents: "none" }}>🔍</span>
+        <input
+          type="text"
+          placeholder="Search by name or room…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{
+            width: "100%", padding: "10px 14px 10px 38px",
+            borderRadius: 12, border: "1.5px solid #e2e8f0",
+            fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem",
+            background: "#fff", color: "#0f172a", outline: "none",
+            boxShadow: "0 1px 4px rgba(15,23,42,0.04)",
+            transition: "border-color 0.2s",
+          }}
+          onFocus={e => e.target.style.borderColor = "#2563eb"}
+          onBlur={e  => e.target.style.borderColor = "#e2e8f0"}
+        />
+      </div>
+
+      {/* States */}
+      {loading && (
+        <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8", fontSize: "0.875rem" }}>
+          <div style={{ fontSize: "2rem", marginBottom: 12 }}>⏳</div>
+          Loading student details…
+        </div>
+      )}
+
+      {!loading && error && (
+        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 14, padding: "20px 22px", color: "#dc2626", fontSize: "0.875rem", fontWeight: 600 }}>
+          ⚠️ {error}
+        </div>
+      )}
+
+      {!loading && !error && filtered.length === 0 && (
+        <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8", fontSize: "0.875rem" }}>
+          <div style={{ fontSize: "2rem", marginBottom: 12 }}>🎓</div>
+          {search ? "No students match your search." : "No students found for your floor."}
+        </div>
+      )}
+
+      {/* Table — desktop */}
+      {!loading && !error && filtered.length > 0 && (
+        <>
+          {/* Summary chips */}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
+            <span style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", borderRadius: 20, padding: "4px 13px", fontSize: "0.72rem", fontWeight: 700 }}>
+              👥 {students.length} Total
+            </span>
+            <span style={{ background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", borderRadius: 20, padding: "4px 13px", fontSize: "0.72rem", fontWeight: 700 }}>
+              ✅ {students.filter(s => s.paid).length} Fees Paid
+            </span>
+            <span style={{ background: "#fff7ed", color: "#ea580c", border: "1px solid #fed7aa", borderRadius: 20, padding: "4px 13px", fontSize: "0.72rem", fontWeight: 700 }}>
+              ⏳ {students.filter(s => !s.paid).length} Pending
+            </span>
+          </div>
+
+          {/* Card grid (mobile-friendly) */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
+            {filtered.map((s, i) => (
+              <div key={i} style={{
+                background: "#fff", borderRadius: 16, padding: "18px 20px",
+                boxShadow: "0 2px 12px rgba(15,23,42,0.06)",
+                border: "1px solid #f1f5f9",
+                display: "flex", flexDirection: "column", gap: 12,
+                transition: "box-shadow 0.2s, transform 0.2s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 6px 24px rgba(37,99,235,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 12px rgba(15,23,42,0.06)"; e.currentTarget.style.transform = "translateY(0)"; }}
+              >
+                {/* Top row */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: "50%", flexShrink: 0,
+                    background: "linear-gradient(135deg, #2563eb, #6366f1)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "#fff", fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: "1rem",
+                    boxShadow: "0 4px 12px rgba(37,99,235,0.22)",
+                  }}>
+                    {s.name?.charAt(0)?.toUpperCase() || "?"}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: "0.92rem", color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {s.name || "—"}
+                    </div>
+                    <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: 2 }}>
+                      📞 {s.phone || "—"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Meta row */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ background: "#f8faff", border: "1px solid #e0e7ff", borderRadius: 8, padding: "4px 10px", fontSize: "0.72rem", fontWeight: 700, color: "#3730a3" }}>
+                    🚪 Room {s.room_number ?? "—"}
+                  </span>
+                  <span style={{
+                    borderRadius: 20, padding: "4px 12px", fontSize: "0.7rem", fontWeight: 700,
+                    background: s.paid ? "#f0fdf4" : "#fff7ed",
+                    color:      s.paid ? "#16a34a" : "#ea580c",
+                    border:     `1px solid ${s.paid ? "#bbf7d0" : "#fed7aa"}`,
+                  }}>
+                    {s.paid ? "✅ Paid" : "⏳ Pending"}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── Complaints Panel ──────────────────────────────────────────────────────────
+const DEFAULT_IMG = "https://ui-avatars.com/api/?name=No+Image&background=f1f5f9&color=94a3b8&size=80";
+
+function ComplaintsPanel() {
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState(null);
+  const [resolving, setResolving]   = useState(null);
+  const [search, setSearch]         = useState("");
+
+  const fetchComplaints = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API}/complaints/warden`, { credentials: "include" });
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+      const data = await res.json();
+      setComplaints(Array.isArray(data.complaints) ? data.complaints : []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchComplaints(); }, []);
+
+  const handleResolve = async (id) => {
+    try {
+      setResolving(id);
+      const res = await fetch(`${API}/complaints/${id}/resolve`, {
+        method: "PATCH",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to resolve");
+      // remove from list after resolving
+      setComplaints(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setResolving(null);
+    }
+  };
+
+  const filtered = complaints.filter(c =>
+    c.name?.toLowerCase().includes(search.toLowerCase()) ||
+    String(c.room_number).includes(search) ||
+    c.title?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="wd-panel">
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: "1.35rem", color: "#0f172a", marginBottom: 4, letterSpacing: "-0.01em" }}>
+          Complaints
+        </h2>
+        <p style={{ color: "#94a3b8", fontSize: "0.85rem" }}>Pending complaints from students on your floor</p>
+      </div>
+
+      {/* Search */}
+      <div style={{ marginBottom: 20, position: "relative" }}>
+        <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", fontSize: "0.95rem", pointerEvents: "none" }}>🔍</span>
+        <input
+          type="text"
+          placeholder="Search by name, room or title…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{
+            width: "100%", padding: "10px 14px 10px 38px",
+            borderRadius: 12, border: "1.5px solid #e2e8f0",
+            fontFamily: "'DM Sans', sans-serif", fontSize: "0.875rem",
+            background: "#fff", color: "#0f172a", outline: "none",
+            boxShadow: "0 1px 4px rgba(15,23,42,0.04)",
+            transition: "border-color 0.2s",
+          }}
+          onFocus={e => e.target.style.borderColor = "#2563eb"}
+          onBlur={e  => e.target.style.borderColor = "#e2e8f0"}
+        />
+      </div>
+
+      {/* Loading */}
+      {loading && (
+        <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8", fontSize: "0.875rem" }}>
+          <div style={{ fontSize: "2rem", marginBottom: 12 }}>⏳</div>
+          Loading complaints…
+        </div>
+      )}
+
+      {/* Error */}
+      {!loading && error && (
+        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 14, padding: "20px 22px", color: "#dc2626", fontSize: "0.875rem", fontWeight: 600 }}>
+          ⚠️ {error}
+        </div>
+      )}
+
+      {/* Empty */}
+      {!loading && !error && filtered.length === 0 && (
+        <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8", fontSize: "0.875rem" }}>
+          <div style={{ fontSize: "2rem", marginBottom: 12 }}>✅</div>
+          {search ? "No complaints match your search." : "No pending complaints on your floor."}
+        </div>
+      )}
+
+      {/* Summary chips */}
+      {!loading && !error && complaints.length > 0 && (
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16 }}>
+          <span style={{ background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 20, padding: "4px 13px", fontSize: "0.72rem", fontWeight: 700 }}>
+            📋 {complaints.length} Pending
+          </span>
+        </div>
+      )}
+
+      {/* Cards */}
+      {!loading && !error && filtered.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+          {filtered.map((c) => (
+            <div key={c.id} style={{
+              background: "#fff", borderRadius: 16,
+              boxShadow: "0 2px 12px rgba(15,23,42,0.06)",
+              border: "1px solid #f1f5f9",
+              overflow: "hidden",
+              display: "flex", flexDirection: "column",
+              transition: "box-shadow 0.2s, transform 0.2s",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 6px 24px rgba(37,99,235,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 12px rgba(15,23,42,0.06)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              {/* Image */}
+              <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#f8faff", flexShrink: 0 }}>
+                <img
+                  src={c.image_url || DEFAULT_IMG}
+                  alt={c.title}
+                  onError={e => { e.target.src = DEFAULT_IMG; }}
+                  style={{ width: "100%", height: "100%", objectFit: c.image_url ? "cover" : "contain", padding: c.image_url ? 0 : 20 }}
+                />
+              </div>
+
+              {/* Body */}
+              <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+                {/* Student row */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{
+                    width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+                    background: "linear-gradient(135deg, #2563eb, #6366f1)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "#fff", fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: "0.85rem",
+                    boxShadow: "0 2px 8px rgba(37,99,235,0.22)",
+                  }}>
+                    {c.name?.charAt(0)?.toUpperCase() || "?"}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: "0.88rem", color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {c.name || "—"}
+                    </div>
+                    <div style={{ fontSize: "0.7rem", color: "#64748b", marginTop: 1 }}>
+                      🚪 Room {c.room_number ?? "—"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Title */}
+                <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: "0.92rem", color: "#0f172a" }}>
+                  {c.title}
+                </div>
+
+                {/* Description */}
+                <div style={{ fontSize: "0.8rem", color: "#64748b", lineHeight: 1.6,
+                  display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden"
+                }}>
+                  {c.description}
+                </div>
+
+                {/* Date */}
+                <div style={{ fontSize: "0.68rem", color: "#94a3b8", marginTop: "auto" }}>
+                  🕐 {c.created_at ? (() => { const d = new Date(c.created_at); return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`; })() : "—"}
+                </div>
+
+                {/* Resolve button */}
+                <button
+                  onClick={() => handleResolve(c.id)}
+                  disabled={resolving === c.id}
+                  style={{
+                    width: "100%", padding: "9px 0",
+                    borderRadius: 10, border: "none",
+                    background: resolving === c.id ? "#e2e8f0" : "linear-gradient(135deg, #2563eb, #6366f1)",
+                    color: resolving === c.id ? "#94a3b8" : "#fff",
+                    fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: "0.82rem",
+                    cursor: resolving === c.id ? "not-allowed" : "pointer",
+                    transition: "opacity 0.2s",
+                    marginTop: 4,
+                  }}
+                  onMouseEnter={e => { if (resolving !== c.id) e.currentTarget.style.opacity = "0.88"; }}
+                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+                >
+                  {resolving === c.id ? "Resolving…" : "✅ Mark as Done"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -460,8 +820,8 @@ export default function WardenDashboard() {
         <div className="wd-page">
           <div style={{ maxWidth: 900, margin: "0 auto" }}>
             {active === "profile"    && <ProfilePanel warden={warden} stats={stats} />}
-            {active === "students"   && <WipPanel label="Students"   icon={StudentsIcon} />}
-            {active === "complaints" && <WipPanel label="Complaints" icon={ComplaintsIcon} />}
+            {active === "students"   && <StudentsPanel />}
+            {active === "complaints" && <ComplaintsPanel />}
           </div>
         </div>
       </div>

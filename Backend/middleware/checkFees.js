@@ -11,25 +11,28 @@ export const checkFees = async (req, res, next) => {
       [studentId]
     );
 
+   
     if (studentResult.rowCount === 0) {
       return res.status(404).json({ message: "Student not found" });
     }
 
     const student = studentResult.rows[0];
-
+  
+    
     if (!student.fees_paid) {
       return res.status(403).json({ message: "Fees not paid" });
     }
 
-    // get latest fees row
+   
     const feesResult = await client.query(
       "SELECT * FROM fees WHERE student_id = $1 ORDER BY paid_at DESC LIMIT 1",
       [studentId]
     );
-
     if (feesResult.rowCount === 0) {
       return res.status(403).json({ message: "No fees record found" });
     }
+     console.log("req.user.id:", studentId);
+     console.log("fees result:", feesResult.rows);
 
     const fees = feesResult.rows[0];
     const now = new Date();

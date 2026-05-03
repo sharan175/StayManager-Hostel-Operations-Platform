@@ -1,5 +1,5 @@
 import express from "express";
-import { submitComplaint, getComplaints } from "../controllers/complaintsController.js";
+import { submitComplaint, getComplaints,getWardenComplaints, resolveComplaint } from "../controllers/complaintsController.js";
 import { attachRole } from "../middleware/roleMiddleware.js";
 import { checkFees } from "../middleware/checkFees.js";
 import {isAuth} from "../middleware/authMiddleware.js"
@@ -15,5 +15,6 @@ const requireRole = (role) => (req, res, next) => {
 
 router.post("/", isAuth, attachRole, requireRole("student"), checkFees, submitComplaint);
 router.get("/", isAuth, attachRole, requireRole("student"), checkFees, getComplaints);
-
+router.get("/warden", isAuth, attachRole, requireRole("warden"), getWardenComplaints);
+router.patch("/:id/resolve", isAuth, attachRole, requireRole("warden"), resolveComplaint);
 export default router;

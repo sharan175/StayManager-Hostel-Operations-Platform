@@ -11,6 +11,7 @@ const SIDEBAR_ITEMS = [
   { key: "student", icon: "🎓", label: "Students" },
   { key: "floors",  icon: "🏢", label: "Floors" },
   { key: "rooms",   icon: "🚪", label: "Rooms" },
+  { key: "fees",    icon: "💰", label: "Student Fees Record" },
 ];
 
 const API = "http://localhost:3000";
@@ -188,6 +189,207 @@ function RolePanel({ title, icon, addEndpoint, removeEndpoint, extraFields = [],
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ─── Fees Panel ─── */
+const formatDate = (val) => {
+  if (!val) return "—";
+  const d = new Date(val);
+  if (isNaN(d)) return val;
+  const dd   = String(d.getDate()).padStart(2, "0");
+  const mm   = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+};
+
+function FeesPanel() {
+  const [fees, setFees]       = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState(null);
+  const [search, setSearch]   = useState("");
+
+  useEffect(() => {
+    const fetchFees = async () => {
+      try {
+        const res  = await fetch(`${API}/fees/get/fees`, { credentials: "include" });
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+        const data = await res.json();
+        setFees(data.data || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFees();
+  }, []);
+
+  const filtered = fees.filter(f =>
+    f.name?.toLowerCase().includes(search.toLowerCase()) ||
+    f.phone_no?.includes(search)
+  );
+
+  const totalAmount = fees.reduce((sum, f) => sum + Number(f.amount || 0), 0);
+
+  return (
+    <div className="adm-panel">
+      {/* Header */}
+      <h2 style={{ fontFamily: "'Sora', sans-serif", fontSize: "1.2rem", fontWeight: 800, color: "#0f172a", marginBottom: 6 }}>
+        💰 Student Fees Record
+      </h2>
+      <p style={{ color: "#94a3b8", fontSize: "0.85rem", marginBottom: 22 }}>All fee transactions recorded in the system</p>
+
+      {/* Summary chips */}
+      {!loading && !error && (
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
+          <span style={{ background: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", borderRadius: 20, padding: "4px 14px", fontSize: "0.72rem", fontWeight: 700 }}>
+            📋 {fees.length} Transactions
+          </span>
+          <span style={{ background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", borderRadius: 20, padding: "4px 14px", fontSize: "0.72rem", fontWeight: 700 }}>
+            💵 ₹{totalAmount.toLocaleString()} Collected
+          </span>
+        </div>
+      )}
+
+      {/* Search */}
+      <div style={{ marginBottom: 20, position: "relative" }}>
+        <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", fontSize: "0.95rem", pointerEvents: "none" }}>🔍</span>
+        <input
+          type="text"
+          placeholder="Search by name or phone…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="adm-input"
+          style={{ paddingLeft: 38 }}
+        />
+      </div>
+
+      {/* States */}
+      {loading && (
+        <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8", fontSize: "0.875rem" }}>
+          <div style={{ fontSize: "2rem", marginBottom: 12 }}>⏳</div>
+          Loading fee records…
+        </div>
+      )}
+      {!loading && error && (
+        <div className="adm-msg-err">⚠️ {error}</div>
+      )}
+      {!loading && !error && filtered.length === 0 && (
+        <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8", fontSize: "0.875rem" }}>
+          <div style={{ fontSize: "2rem", marginBottom: 12 }}>💸</div>
+          {search ? "No records match your search." : "No fee records found."}
+        </div>
+      )}
+
+      {/* Desktop table */}
+      {!loading && !error && filtered.length > 0 && (
+        <>
+          {/* Table — hidden on mobile */}
+          <div style={{ overflowX: "auto", borderRadius: 16, boxShadow: "0 2px 16px rgba(15,23,42,0.07)", display: "block" }} className="fees-table-wrap">
+            <table style={{ width: "100%", borderCollapse: "collapse", background: "#fff", borderRadius: 16, overflow: "hidden", fontSize: "0.875rem" }}>
+              <thead>
+                <tr style={{ background: "#f8faff" }}>
+                  {["Student", "Phone", "Amount", "Months Paid", "Paid Date", "Expires"].map(h => (
+                    <th key={h} style={{ padding: "13px 16px", textAlign: "left", fontSize: "0.68rem", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", whiteSpace: "nowrap", borderBottom: "1px solid #f1f5f9" }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((f, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid #f8faff", transition: "background 0.15s" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#f8faff"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    <td style={{ padding: "14px 16px", whiteSpace: "nowrap" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#2563eb,#6366f1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "0.8rem", fontWeight: 700, flexShrink: 0 }}>
+                          {f.name?.charAt(0)?.toUpperCase() || "?"}
+                        </div>
+                        <span style={{ fontWeight: 600, color: "#0f172a" }}>{f.name || "—"}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: "14px 16px", color: "#64748b", whiteSpace: "nowrap" }}>{f.phone_no || "—"}</td>
+                    <td style={{ padding: "14px 16px", whiteSpace: "nowrap" }}>
+                      <span style={{ fontWeight: 700, color: "#16a34a" }}>₹{Number(f.amount).toLocaleString()}</span>
+                    </td>
+                    <td style={{ padding: "14px 16px", whiteSpace: "nowrap" }}>
+                      <span style={{ background: "#eff6ff", color: "#2563eb", borderRadius: 20, padding: "3px 11px", fontSize: "0.75rem", fontWeight: 700, border: "1px solid #bfdbfe" }}>
+                        {f.months_paid} {f.months_paid === 1 ? "month" : "months"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "14px 16px", color: "#64748b", whiteSpace: "nowrap", fontSize: "0.83rem" }}>{formatDate(f.paid_date)}</td>
+                    <td style={{ padding: "14px 16px", whiteSpace: "nowrap" }}>
+                      {f.expire_date ? (
+                        <span style={{
+                          background: new Date(f.expire_date) < new Date() ? "#fef2f2" : "#f0fdf4",
+                          color:      new Date(f.expire_date) < new Date() ? "#dc2626"  : "#16a34a",
+                          border:     `1px solid ${new Date(f.expire_date) < new Date() ? "#fecaca" : "#bbf7d0"}`,
+                          borderRadius: 20, padding: "3px 11px", fontSize: "0.75rem", fontWeight: 700,
+                        }}>
+                          {new Date(f.expire_date) < new Date() ? "⚠️ " : "✅ "}{formatDate(f.expire_date)}
+                        </span>
+                      ) : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards — shown only on small screens */}
+          <div className="fees-cards" style={{ display: "none", flexDirection: "column", gap: 12 }}>
+            {filtered.map((f, i) => (
+              <div key={i} style={{ background: "#fff", borderRadius: 16, padding: "16px 18px", boxShadow: "0 2px 12px rgba(15,23,42,0.06)", border: "1px solid #f1f5f9", display: "flex", flexDirection: "column", gap: 10 }}>
+                {/* Name row */}
+                <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg,#2563eb,#6366f1)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: "0.95rem", flexShrink: 0 }}>
+                    {f.name?.charAt(0)?.toUpperCase() || "?"}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: "0.92rem", color: "#0f172a" }}>{f.name || "—"}</div>
+                    <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: 2 }}>📞 {f.phone_no || "—"}</div>
+                  </div>
+                  <div style={{ marginLeft: "auto", fontWeight: 800, color: "#16a34a", fontSize: "1rem" }}>
+                    ₹{Number(f.amount).toLocaleString()}
+                  </div>
+                </div>
+                {/* Detail row */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  <span style={{ background: "#eff6ff", color: "#2563eb", borderRadius: 20, padding: "3px 11px", fontSize: "0.72rem", fontWeight: 700, border: "1px solid #bfdbfe" }}>
+                    🗓 {f.months_paid} {f.months_paid === 1 ? "month" : "months"}
+                  </span>
+                  <span style={{ background: "#f8faff", color: "#64748b", borderRadius: 20, padding: "3px 11px", fontSize: "0.72rem", fontWeight: 600, border: "1px solid #e0e7ff" }}>
+                    Paid: {formatDate(f.paid_date)}
+                  </span>
+                  {f.expire_date && (
+                    <span style={{
+                      background: new Date(f.expire_date) < new Date() ? "#fef2f2" : "#f0fdf4",
+                      color:      new Date(f.expire_date) < new Date() ? "#dc2626"  : "#16a34a",
+                      border:     `1px solid ${new Date(f.expire_date) < new Date() ? "#fecaca" : "#bbf7d0"}`,
+                      borderRadius: 20, padding: "3px 11px", fontSize: "0.72rem", fontWeight: 700,
+                    }}>
+                      {new Date(f.expire_date) < new Date() ? "⚠️ Expired" : "✅ Valid"} · {formatDate(f.expire_date)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      <style>{`
+        .fees-table-wrap { display: block; }
+        .fees-cards      { display: none !important; }
+        @media (max-width: 640px) {
+          .fees-table-wrap { display: none !important; }
+          .fees-cards      { display: flex !important; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -597,6 +799,9 @@ export default function AdminDashboard() {
     listKey="students"
   />
 )}
+
+{/* FEES */}
+{active === "fees" && <FeesPanel />}
 
         </div>
       </div>
