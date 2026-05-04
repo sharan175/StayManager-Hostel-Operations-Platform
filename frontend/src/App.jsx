@@ -94,12 +94,15 @@ const handleLogin = async () => {
       setSuccess("Login successful ");
 
       setTimeout(async () => {
-        await fetchUser();
-        setShowLogin(false);
-        setLoginForm({ email: "", password: "" });
-        setSuccess("");
-      }, 800);
-
+    const role = await fetchUser();
+    setShowLogin(false);
+    setLoginForm({ email: "", password: "" });
+    setSuccess("");
+    if (role === "admin") navigate("/admin");
+    else if (role === "warden") navigate("/warden");
+    else if (role === "cook") navigate("/cook");
+    else if (role === "student") navigate("/cook");
+}, 800);
     } else {
       setError(data.message);
     }
@@ -118,19 +121,16 @@ const handleLogin = async () => {
 
 const fetchUser = async () => {
   try {
-    const res = await fetch("http://localhost:3000/auth/user", {
-      credentials: "include",
-    });
+    const res = await fetch("http://localhost:3000/auth/user", { credentials: "include" });
     const data = await res.json();
-
     if (data.user) {
       setUser(data.user);
       setIsLoggedIn(true);
+      return data.user.role; // add this
     } else {
       setUser(null);
       setIsLoggedIn(false);
     }
-
   } catch (err) {
     console.log(err);
   }
@@ -418,8 +418,19 @@ useEffect(() => {
                   <button
                     className="btn-primary"
                     style={{ padding: "8px 16px", fontSize: "0.88rem" }}
-                    onClick={() => navigate(`/${user.role}`)}
-                  >
+                    onClick={async () => {
+  const role = user.role;
+  if (role === "admin") navigate("/admin");
+  else if (role === "warden") navigate("/warden");
+  else if (role === "cook") navigate("/cook");
+  else if (role === "student") {
+    const feeRes = await fetch("http://localhost:3000/allocatecheck", { credentials: "include" });
+    const feeData = await feeRes.json();
+    if (feeData.fees_paid) navigate("/student");
+    else navigate("/student/pay");
+  }
+}}
+                   >
                     Dashboard →
                   </button>
                 )}
@@ -475,8 +486,20 @@ useEffect(() => {
           <button
             className="btn-primary"
             style={{ width: "100%", padding: "10px 16px", fontSize: "0.92rem" }}
-            onClick={() => { navigate(`/${user.role}`); setMenuOpen(false); }}
-          >
+            onClick={async () => {
+            const role = user.role;
+            if (role === "admin") navigate("/admin");
+            else if (role === "warden") navigate("/warden");
+            else if (role === "cook") navigate("/cook");
+            else if (role === "student") {
+            const feeRes = await fetch("http://localhost:3000/allocatecheck", { credentials: "include" });
+            const feeData = await feeRes.json();
+            if (feeData.fees_paid) navigate("/student/dashboard");
+            else navigate("/student/pay");
+           }
+           setMenuOpen(false);
+            }}
+              >
             Dashboard →
           </button>
         )}

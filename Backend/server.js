@@ -11,6 +11,7 @@ import wardenRoutes from "./routes/wardenRoutes.js"
 import feesRoutes from "./routes/feesRoutes.js";
 import studentRoutes from "./routes/studentRoutes.js";
 import complaintsRoutes from "./routes/complaintsRoutes.js";
+import allocationcheckRoutes  from "./routes/allocationcheckRoutes.js";
 import dotenv from "dotenv";
 import session from "express-session";
 
@@ -54,6 +55,7 @@ app.use("/fees", feesRoutes);
 app.use("/student", studentRoutes);
 app.use("/complaints", complaintsRoutes);
 app.use("/food", foodRoutes);
+app.use("/",allocationcheckRoutes)
 app.use("/roles",rolecreateRoutes)
 app.use("/",wardenRoutes)
 

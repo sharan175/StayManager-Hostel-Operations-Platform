@@ -3,6 +3,8 @@ import { submitComplaint, getComplaints,getWardenComplaints, resolveComplaint } 
 import { attachRole } from "../middleware/roleMiddleware.js";
 import { checkFees } from "../middleware/checkFees.js";
 import {isAuth} from "../middleware/authMiddleware.js"
+import multer from "multer";
+const upload = multer({ dest: "uploads/" });
 
 const router = express.Router();
 
@@ -12,7 +14,7 @@ const requireRole = (role) => (req, res, next) => {
   }
   next();
 };
-
+router.post("/", upload.single("image"), submitComplaint);
 router.post("/", isAuth, attachRole, requireRole("student"), checkFees, submitComplaint);
 router.get("/", isAuth, attachRole, requireRole("student"), checkFees, getComplaints);
 router.get("/warden", isAuth, attachRole, requireRole("warden"), getWardenComplaints);

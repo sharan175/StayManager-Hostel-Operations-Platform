@@ -69,6 +69,7 @@ router.get("/user", attachRole, async (req, res) => {
         name: req.user.name,
         email: req.user.email,
         role: req.user.role,   
+        phone: req.user.phone_no
       },
     });
   }

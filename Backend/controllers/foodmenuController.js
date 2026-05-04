@@ -40,7 +40,7 @@ export const createMenu = async (req, res) => {
   }
 };
 
-/* ── GET active menu (not yet expired) ── */
+
 export const getActiveMenu = async (req, res) => {
   try {
     const result = await pool.query(
