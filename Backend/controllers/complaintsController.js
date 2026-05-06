@@ -21,9 +21,13 @@ export const submitComplaint = async (req, res) => {
 
     const studentId = studentResult.rows[0].id;
 
+    // Build image URL from uploaded file (if any)
+    // req.file is set by multer's upload.single("image") in the route
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
     const result = await pool.query(
-      "INSERT INTO complaints (student_id, title, description) VALUES ($1, $2, $3) RETURNING *",
-      [studentId, title, description]
+      "INSERT INTO complaints (student_id, title, description, image_url) VALUES ($1, $2, $3, $4) RETURNING *",
+      [studentId, title, description, imageUrl]
     );
 
     res.json({
@@ -36,10 +40,12 @@ export const submitComplaint = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 export const getComplaints = async (req, res) => {
   try {
     const userId = req.user.id;
-      const studentResult = await pool.query(
+
+    const studentResult = await pool.query(
       "SELECT id FROM students WHERE user_id = $1",
       [userId]
     );
@@ -65,6 +71,7 @@ export const getComplaints = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 export const getWardenComplaints = async (req, res) => {
   try {
     const userId = req.user.id;

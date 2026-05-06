@@ -101,7 +101,7 @@ const handleLogin = async () => {
     if (role === "admin") navigate("/admin");
     else if (role === "warden") navigate("/warden");
     else if (role === "cook") navigate("/cook");
-    else if (role === "student") navigate("/cook");
+    else if (role === "student") navigate("/student");
 }, 800);
     } else {
       setError(data.message);

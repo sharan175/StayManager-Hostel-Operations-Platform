@@ -434,15 +434,17 @@ function ComplaintsPanel() {
               onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 6px 24px rgba(37,99,235,0.1)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 12px rgba(15,23,42,0.06)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              {/* Image */}
-              <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#f8faff", flexShrink: 0 }}>
-                <img
-                  src={c.image_url || DEFAULT_IMG}
-                  alt={c.title}
-                  onError={e => { e.target.src = DEFAULT_IMG; }}
-                  style={{ width: "100%", height: "100%", objectFit: c.image_url ? "cover" : "contain", padding: c.image_url ? 0 : 20 }}
-                />
-              </div>
+              {/* Image — only shown when one was attached */}
+              {c.image_url && (
+                <div style={{ width: "100%", height: 160, overflow: "hidden", background: "#f8faff", flexShrink: 0 }}>
+                  <img
+                    src={`${API}${c.image_url}`}
+                    alt={c.title}
+                    onError={e => { e.target.src = DEFAULT_IMG; }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </div>
+              )}
 
               {/* Body */}
               <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>

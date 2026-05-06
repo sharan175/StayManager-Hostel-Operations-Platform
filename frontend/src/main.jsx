@@ -10,7 +10,7 @@ import CookDashboard from "./CookDashboard"
 import WardenDashboard from "./WardenDashboard";
 import StudentPayment from './Studentpayment.jsx';
 import StudentDashboard from './StudentDashboard.jsx'
-
+import ProtectedRoute from "./ProtectedRoute";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -22,8 +22,22 @@ createRoot(document.getElementById('root')).render(
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/warden" element={<WardenDashboard />} />
         <Route path="/cook" element={<CookDashboard />} />
-        <Route path="/student/pay" element={<StudentPayment />} />
-        <Route path="/student" element={<StudentDashboard />} />
+        <Route
+  path="/student"
+  element={
+    <ProtectedRoute allowedRoles={["student"]}>
+      <StudentDashboard />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/student/pay"
+  element={
+    <ProtectedRoute allowedRoles={["student"]}>
+      <StudentPayment />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   </StrictMode>,
