@@ -30,5 +30,5 @@ router.post("/dish-photo", upload.single("photo"), uploadDishPhoto);
 router.delete("/dish/:id", deleteDish);
 router.get("/showfood", showfood);
 router.post("/select-dish", isAuth, selectDish);
-router.get("/dishselect", getDishSelectionStats);
+router.get("/dish-selection-stats", getDishSelectionStats);
 export default router;

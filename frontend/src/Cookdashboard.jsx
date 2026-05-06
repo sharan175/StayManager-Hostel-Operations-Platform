@@ -315,6 +315,130 @@ const handleDeleteDish = async (dishId) => {
   );
 }
 
+/* ── Student Dish Selection Stats Panel ── */
+function StudentStatsPanel() {
+  const [stats, setStats]     = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState(null);
+
+  const fetchStats = async () => {
+    setLoading(true); setError(null);
+    try {
+      const res = await fetch(`${API}/food/dish-selection-stats`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch stats");
+      const data = await res.json();
+      setStats(data.data || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchStats(); }, []);
+
+  // Group by meal
+  const grouped = stats.reduce((acc, row) => {
+    if (!acc[row.meal]) acc[row.meal] = [];
+    acc[row.meal].push(row);
+    return acc;
+  }, {});
+
+  const mealColors = {
+    Breakfast:      { bg: "#fffbeb", accent: "#f59e0b", light: "#fef3c7", text: "#92400e", icon: "🌅" },
+    Lunch:          { bg: "#eff6ff", accent: "#3b82f6", light: "#dbeafe", text: "#1e40af", icon: "☀️" },
+    Dinner:         { bg: "#f5f3ff", accent: "#7c3aed", light: "#ede9fe", text: "#4c1d95", icon: "🌙" },
+    "Evening Snacks":{ bg: "#fff7ed", accent: "#ea580c", light: "#ffedd5", text: "#9a3412", icon: "🫖" },
+  };
+  const defaultColor = { bg: "#f0fdf4", accent: "#16a34a", light: "#dcfce7", text: "#14532d", icon: "🍽️" };
+
+  const getMaxCount = (dishes) => Math.max(...dishes.map(d => Number(d.selected_count)), 1);
+
+  return (
+    <div className="ck-stats-root">
+      <div className="ck-stats-header">
+        <div>
+          <h2 className="ck-stats-title">🎓 Student Selections</h2>
+          <p className="ck-stats-sub">Live dish selection counts from active meal menus</p>
+        </div>
+        <button className="ck-stats-refresh" onClick={fetchStats} disabled={loading}>
+          {loading ? "⏳" : "↻"} Refresh
+        </button>
+      </div>
+
+      {loading && (
+        <div className="ck-stats-loading">
+          <div className="ck-spinner" />
+          <span>Loading selection data…</span>
+        </div>
+      )}
+
+      {error && !loading && (
+        <div className="ck-stats-error">
+          <span>⚠️ {error}</span>
+          <button onClick={fetchStats}>Retry</button>
+        </div>
+      )}
+
+      {!loading && !error && stats.length === 0 && (
+        <div className="ck-stats-empty">
+          <div style={{ fontSize: "2.8rem", marginBottom: 12 }}>📭</div>
+          <h3>No active selections</h3>
+          <p>Student selections will appear here once a meal menu is live and students start picking dishes.</p>
+        </div>
+      )}
+
+      {!loading && !error && Object.keys(grouped).map(meal => {
+        const dishes  = grouped[meal];
+        const colors  = mealColors[meal] || defaultColor;
+        const maxCnt  = getMaxCount(dishes);
+        const total   = dishes.reduce((s, d) => s + Number(d.selected_count), 0);
+
+        return (
+          <div key={meal} className="ck-stats-meal-card" style={{ "--meal-accent": colors.accent, "--meal-light": colors.light, "--meal-bg": colors.bg }}>
+            <div className="ck-stats-meal-header">
+              <div className="ck-stats-meal-icon">{colors.icon}</div>
+              <div>
+                <div className="ck-stats-meal-name">{meal}</div>
+                <div className="ck-stats-meal-meta">{dishes.length} dish{dishes.length !== 1 ? "es" : ""} · {total} total selection{total !== 1 ? "s" : ""}</div>
+              </div>
+              <div className="ck-stats-meal-badge" style={{ background: colors.light, color: colors.text }}>
+                {total} votes
+              </div>
+            </div>
+
+            <div className="ck-stats-dish-list">
+              {dishes.map((dish, i) => {
+                const count = Number(dish.selected_count);
+                const pct   = Math.round((count / maxCnt) * 100);
+                const isTop = i === 0;
+                return (
+                  <div key={dish.dish_name} className={`ck-stats-dish-row ${isTop ? "top-pick" : ""}`}>
+                    <div className="ck-stats-dish-left">
+                      {isTop && <span className="ck-stats-crown">👑</span>}
+                      <span className="ck-stats-dish-rank">#{i + 1}</span>
+                      <span className="ck-stats-dish-name">{dish.dish_name}</span>
+                    </div>
+                    <div className="ck-stats-bar-wrap">
+                      <div className="ck-stats-bar-track">
+                        <div
+                          className="ck-stats-bar-fill"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="ck-stats-count">{count}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ════ MAIN COMPONENT ════ */
 export default function CookDashboard() {
   const navigate = useNavigate();
@@ -852,6 +976,170 @@ export default function CookDashboard() {
           .ck-logout-btn { display: none; }
         }
 
+        /* ─── STUDENT STATS PANEL ─── */
+        .ck-stats-root {
+          display: flex; flex-direction: column; gap: 20px;
+          max-width: 860px;
+        }
+        .ck-stats-header {
+          display: flex; align-items: flex-start;
+          justify-content: space-between; gap: 12px;
+          flex-wrap: wrap;
+        }
+        .ck-stats-title {
+          font-family: 'Sora', sans-serif;
+          font-size: 1.25rem; font-weight: 800;
+          color: #0f172a; margin-bottom: 4px;
+        }
+        .ck-stats-sub { color: #64748b; font-size: 0.85rem; }
+        .ck-stats-refresh {
+          background: #0f172a; color: #fff;
+          border: none; border-radius: 8px;
+          padding: 8px 16px; font-size: 0.82rem;
+          font-weight: 600; cursor: pointer;
+          font-family: inherit; white-space: nowrap;
+          transition: background 0.15s;
+          flex-shrink: 0;
+        }
+        .ck-stats-refresh:hover:not(:disabled) { background: #1e293b; }
+        .ck-stats-refresh:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .ck-stats-loading {
+          display: flex; align-items: center; gap: 12px;
+          padding: 48px; justify-content: center;
+          color: #64748b; font-size: 0.9rem;
+          background: #fff; border-radius: 16px;
+        }
+        .ck-spinner {
+          width: 22px; height: 22px; border-radius: 50%;
+          border: 3px solid #e2e8f0;
+          border-top-color: #16a34a;
+          animation: spin 0.7s linear infinite;
+          flex-shrink: 0;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .ck-stats-error {
+          display: flex; align-items: center;
+          justify-content: space-between; gap: 12px;
+          background: #fff1f2; border: 1px solid #fecdd3;
+          border-radius: 12px; padding: 16px 20px;
+          color: #be123c; font-size: 0.88rem; font-weight: 500;
+        }
+        .ck-stats-error button {
+          background: #e11d48; color: #fff;
+          border: none; border-radius: 6px;
+          padding: 6px 14px; font-size: 0.8rem;
+          font-weight: 600; cursor: pointer;
+          font-family: inherit; white-space: nowrap;
+        }
+        .ck-stats-empty {
+          text-align: center; padding: 60px 28px;
+          background: #fff; border-radius: 16px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+        .ck-stats-empty h3 {
+          font-family: 'Sora', sans-serif;
+          font-size: 1.1rem; font-weight: 800;
+          color: #0f172a; margin-bottom: 8px;
+        }
+        .ck-stats-empty p { color: #64748b; font-size: 0.87rem; line-height: 1.7; max-width: 360px; margin: 0 auto; }
+
+        /* ── Meal Card ── */
+        .ck-stats-meal-card {
+          background: #fff;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+          border: 1px solid #f1f5f9;
+        }
+        .ck-stats-meal-header {
+          display: flex; align-items: center; gap: 14px;
+          padding: 18px 22px;
+          background: var(--meal-bg);
+          border-bottom: 1px solid #f1f5f9;
+          flex-wrap: wrap;
+        }
+        .ck-stats-meal-icon {
+          width: 42px; height: 42px; border-radius: 12px;
+          background: var(--meal-light);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 1.3rem; flex-shrink: 0;
+        }
+        .ck-stats-meal-name {
+          font-family: 'Sora', sans-serif;
+          font-weight: 800; font-size: 1rem; color: #0f172a;
+        }
+        .ck-stats-meal-meta { color: #64748b; font-size: 0.78rem; margin-top: 2px; }
+        .ck-stats-meal-badge {
+          margin-left: auto; border-radius: 20px;
+          padding: 5px 14px; font-size: 0.75rem;
+          font-weight: 700; white-space: nowrap;
+          flex-shrink: 0;
+        }
+
+        /* ── Dish rows ── */
+        .ck-stats-dish-list {
+          display: flex; flex-direction: column;
+          padding: 12px 0;
+        }
+        .ck-stats-dish-row {
+          display: flex; align-items: center; gap: 10px;
+          padding: 10px 22px;
+          transition: background 0.12s;
+        }
+        .ck-stats-dish-row:hover { background: #f8fafc; }
+        .ck-stats-dish-row.top-pick { background: #f0fdf4; }
+        .ck-stats-dish-row.top-pick:hover { background: #dcfce7; }
+
+        .ck-stats-dish-left {
+          display: flex; align-items: center; gap: 8px;
+          min-width: 0; flex: 0 0 auto;
+          width: clamp(120px, 38%, 220px);
+        }
+        .ck-stats-crown { font-size: 0.9rem; flex-shrink: 0; }
+        .ck-stats-dish-rank {
+          font-size: 0.72rem; font-weight: 700;
+          color: #94a3b8; flex-shrink: 0; width: 20px;
+        }
+        .ck-stats-dish-name {
+          font-size: 0.875rem; font-weight: 600; color: #1e293b;
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .ck-stats-bar-wrap {
+          flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0;
+        }
+        .ck-stats-bar-track {
+          flex: 1; height: 8px; border-radius: 99px;
+          background: #f1f5f9; overflow: hidden;
+          min-width: 40px;
+        }
+        .ck-stats-bar-fill {
+          height: 100%; border-radius: 99px;
+          background: var(--meal-accent, #16a34a);
+          transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+        .ck-stats-count {
+          font-size: 0.8rem; font-weight: 700;
+          color: #374151; min-width: 24px; text-align: right;
+          flex-shrink: 0;
+        }
+
+        /* ── Stats responsive ── */
+        @media (max-width: 600px) {
+          .ck-stats-meal-header { padding: 14px 16px; gap: 10px; }
+          .ck-stats-dish-row { padding: 9px 16px; gap: 8px; }
+          .ck-stats-dish-left { width: clamp(90px, 35%, 160px); }
+          .ck-stats-title { font-size: 1.05rem; }
+          .ck-stats-meal-badge { display: none; }
+        }
+        @media (max-width: 400px) {
+          .ck-stats-dish-left { width: 100px; }
+          .ck-stats-dish-name { font-size: 0.8rem; }
+          .ck-stats-count { font-size: 0.75rem; }
+        }
+
         /* ── Large desktops (≥ 1280px): wider panel ── */
         @media (min-width: 1280px) {
           .ck-panel { max-width: 900px; }
@@ -922,16 +1210,7 @@ export default function CookDashboard() {
         {/* Page content */}
         <div className="ck-page">
           {active === "menu" && <MenuPanel cook={cook} />}
-          {active === "student" && (
-            <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}>
-              <div className="ck-coming">
-                <div style={{ fontSize: "2.6rem", marginBottom: 12 }}>🎓</div>
-                <h3>Student Selection</h3>
-                <p>Mark attendance and manage student meal selections from here.</p>
-                <div className="ck-coming-badge">Under Construction</div>
-              </div>
-            </div>
-          )}
+          {active === "student" && <StudentStatsPanel />}
         </div>
       </div>
     </div>
