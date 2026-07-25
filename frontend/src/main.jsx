@@ -5,12 +5,12 @@ import './index.css'
 import App from './App.jsx'
 import SignUp from './signup.jsx'
 import CompleteProfile from './complete-profile.jsx'  
-import AdminDashboard from "./AdminDashboard"
-import CookDashboard from "./CookDashboard"
-import WardenDashboard from "./WardenDashboard";
+import AdminDashboard from "./AdminDashboard.jsx"
+import CookDashboard from "./Cookdashboard.jsx"
+import WardenDashboard from "./WardenDashboard.jsx";
 import StudentPayment from './Studentpayment.jsx';
-import StudentDashboard from './StudentDashboard.jsx'
-import ProtectedRoute from "./ProtectedRoute";
+import StudentDashboard from './Studentdashboard.jsx'
+import ProtectedRoute from "./Protectedroute.jsx";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

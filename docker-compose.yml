@@ -1,0 +1,38 @@
+services:
+
+  frontend:
+    build: ./frontend
+    container_name: staymanager-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    container_name: staymanager-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: "hostel_management "
+      DB_USER: postgres
+      DB_PASSWORD: sharan
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    container_name: staymanager-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sharan
+      POSTGRES_DB: "hostel_management "
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
