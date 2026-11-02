@@ -1,21 +1,16 @@
-// ==================== 1(a) ====================
-
 void setup() {
   pinMode(8, OUTPUT);
 }
 
 void loop() {
- 
+
   digitalWrite(8, HIGH);
   delay(500);
- 
+
   digitalWrite(8, LOW);
 
   delay(500);
 }
-
-
-// ==================== 1(b) - Case 1 ====================
 
 int red = 8;
 int green = 9;
@@ -52,9 +47,6 @@ void loop() {
   }
 }
 
-
-// ==================== 1(b) - Case 2 ====================
-
 int red = 8;
 int green = 9;
 int s1 = 7;
@@ -78,4 +70,3 @@ void loop() {
     delay(300);
   }
 }
-
