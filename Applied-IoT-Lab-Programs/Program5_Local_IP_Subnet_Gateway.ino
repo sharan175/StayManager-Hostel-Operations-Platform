@@ -1,5 +1,3 @@
-// ==================== 5 - Local IP, Subnet Mask, Gateway IP ====================
-
 #include <ESP8266WiFi.h>
 
 const char* ssid = "YOUR_WIFI_NAME";
