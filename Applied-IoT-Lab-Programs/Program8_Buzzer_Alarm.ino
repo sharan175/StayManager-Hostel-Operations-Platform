@@ -1,20 +1,17 @@
-// ==================== 8 - Alarm Generation using Buzzer ====================
-
-int buzzerPin = 8; // Buzzer connected to pin 8
+int buzzerPin = 8;
 
 void setup() {
   pinMode(buzzerPin, OUTPUT);
 }
 
 void loop() {
-  // Beep the buzzer 5 times
   for (int i = 0; i < 5; i++) {
-    digitalWrite(buzzerPin, HIGH); // Buzzer ON
-    delay(500);                    // 500 ms ON
+    digitalWrite(buzzerPin, HIGH);
+    delay(500);
 
-    digitalWrite(buzzerPin, LOW);  // Buzzer OFF
-    delay(500);                    // 500 ms OFF
+    digitalWrite(buzzerPin, LOW);
+    delay(500);
   }
 
-  delay(2000); // Wait 2 seconds
+  delay(2000);
 }
