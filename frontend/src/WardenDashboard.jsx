@@ -135,7 +135,7 @@ function ProfilePanel({ warden, stats }) {
 }
 
 // ─── WIP Panel ─────────────────────────────────────────────────────────────────
-function WipPanel({ label, icon: Icon }) {
+function WipPanel({ label }) {
   return (
     <div className="wd-panel" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 380 }}>
       <div style={{ width: 76, height: 76, borderRadius: 22, background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 22, boxShadow: "0 2px 12px rgba(15,23,42,0.06)" }}>
@@ -551,7 +551,7 @@ function Sidebar({ active, setActive, warden, onSignOut, onClose, isMobile }) {
       {/* Nav */}
       <div style={{ flex: 1, padding: "4px 8px", display: "flex", flexDirection: "column", gap: 2 }}>
         <div style={{ fontSize: "0.62rem", color: "#334155", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", padding: "0 9px", marginBottom: 6, marginTop: 4 }}>Navigation</div>
-        {NAV.map(({ id, label, icon: Icon, wip }) => {
+        {NAV.map(({ id, label, wip }) => {
           const isActive = active === id;
           return (
             <button
@@ -633,7 +633,7 @@ export default function WardenDashboard() {
       }
     };
     verify();
-  }, []);
+  }, [navigate]);
 
   // Fetch floor stats
   useEffect(() => {
@@ -646,7 +646,7 @@ export default function WardenDashboard() {
           setStats(data);
         }
       } catch {
-        
+        console.log()
       }
     };
     fetchStats();

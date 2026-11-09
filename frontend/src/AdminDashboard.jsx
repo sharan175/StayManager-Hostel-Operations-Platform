@@ -77,10 +77,12 @@ function RolePanel({ title, icon, addEndpoint, removeEndpoint, extraFields = [],
         const data = await res.json();
         setList(data[listKey] || []);
       }
-    } catch {}
+    } catch {
+      console.log()
+    }
   };
 
-  useEffect(() => { fetchList(); }, []);
+  useEffect(() => { fetchList(); }, [fetchList]);
 
   return (
     <div className="adm-panel">
@@ -416,7 +418,7 @@ export default function AdminDashboard() {
       } catch { navigate("/"); }
     };
     verify();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const onResize = () => { if (window.innerWidth >= 768) setMobileOpen(false); };

@@ -10,32 +10,33 @@ export default function CompleteProfile() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   useEffect(() => {
-    const guard = async () => {
-      try {
-        const res = await fetch("http://localhost:3000/auth/user", {
-          credentials: "include",
-        });
-        const data = await res.json();
+  const guard = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/auth/user", {
+        credentials: "include",
+      });
 
-        if (!data.user) {
-          
-          navigate("/");
-          return;
-        }
+      const data = await res.json();
 
-        if (data.user.name && data.user.phone) {
-          
-          navigate("/");
-          return;
-        }
-
-        setChecking(false); 
-      } catch (err) {
+      if (!data.user) {
         navigate("/");
+        return;
       }
-    };
-    guard();
-  }, []);
+
+      if (data.user.name && data.user.phone) {
+        navigate("/");
+        return;
+      }
+
+      setChecking(false);
+    } catch (err) {
+      console.log(err);
+      navigate("/");
+    }
+  };
+
+  guard();
+}, [navigate]);
   const handleChange = (e) => {
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
     setError("");
@@ -82,6 +83,7 @@ export default function CompleteProfile() {
       const data = await res.json();
       setError(data.message || data.error || "Something went wrong");
     } catch (err) {
+      console.log(err)
       // fetch throws on network failure
       setError("Could not connect to server. Is the backend running?");
     } finally {
