@@ -63,17 +63,13 @@ Wait until all the containers are started.
 
 ## Open the Application
 
-Frontend
+### When running via Docker Compose (Local / Production)
+- **Frontend**: `http://localhost` (Port 80) or `http://<EC2_PUBLIC_IP>` (e.g. `http://3.27.209.60`)
+- **Backend API**: `http://localhost:3000` (Direct) or `http://localhost/api` (Nginx reverse proxy)
 
-```
-http://localhost:5173
-```
-
-Backend
-
-```
-http://localhost:5000
-```
+### When running standalone without Docker (Local Development)
+- **Frontend**: `http://localhost:5173`
+- **Backend**: `http://localhost:3000`
 
 ---
 
@@ -85,18 +81,12 @@ docker compose down
 
 ---
 
-## If You Make Changes
+## If You Make Changes (Zero/Minimal Downtime Deployment)
 
-If you change the code and want Docker to rebuild the application, run:
-
-```bash
-docker compose up --build
-```
-
-If no changes are made to the Dockerfiles, simply run:
+To rebuild and apply updates without stopping existing containers prematurely:
 
 ```bash
-docker compose up
+docker compose up -d --build
 ```
 
 ---

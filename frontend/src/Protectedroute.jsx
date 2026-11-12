@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "./config/api.js";
+
+const API = API_BASE_URL;
 
 
 export default function ProtectedRoute({
@@ -15,7 +18,7 @@ export default function ProtectedRoute({
 
     async function checkAuth() {
       try {
-        const res = await fetch("http://localhost:3000/auth/user", {
+        const res = await fetch(`${API}/auth/user`, {
           credentials: "include",
         });
         const data = await res.json();

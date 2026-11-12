@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "./config/api.js";
+
+const API = API_BASE_URL;
 
 export default function CompleteProfile() {
   const navigate = useNavigate();
@@ -12,7 +15,7 @@ export default function CompleteProfile() {
   useEffect(() => {
   const guard = async () => {
     try {
-      const res = await fetch("http://localhost:3000/auth/user", {
+      const res = await fetch(`${API}/auth/user`, {
         credentials: "include",
       });
 
@@ -65,7 +68,7 @@ export default function CompleteProfile() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/auth/complete-profile", {
+      const res = await fetch(`${API}/auth/complete-profile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", 

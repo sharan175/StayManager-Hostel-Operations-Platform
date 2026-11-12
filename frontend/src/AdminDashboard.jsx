@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import FloorPanel from "./Floorpanel.jsx";
 import RoomPanel from "./Roompanel.jsx";
+import { API_BASE_URL } from "./config/api.js";
 
 
 const SIDEBAR_ITEMS = [
@@ -14,7 +15,7 @@ const SIDEBAR_ITEMS = [
   { key: "fees",    icon: "💰", label: "Student Fees Record" },
 ];
 
-const API = "http://localhost:3000";
+const API = API_BASE_URL;
 
 /* ─── Reusable role management panel ─── */
 function RolePanel({ title, icon, addEndpoint, removeEndpoint, extraFields = [], listKey = "list" }) {

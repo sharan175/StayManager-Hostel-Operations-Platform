@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "./config/api.js";
 
-const API = "http://localhost:3000";
+const API = API_BASE_URL;
 const BASE_PRICE = 15000;
 const DUMMY_IMG = "https://ui-avatars.com/api/?name=Room&background=eff6ff&color=2563eb&size=120";
 

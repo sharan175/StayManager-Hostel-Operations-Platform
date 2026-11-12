@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "./config/api.js";
 
-const API = "http://localhost:3000";
+const API = API_BASE_URL;
 
 const SIDEBAR_ITEMS = [
   { key: "menu",    icon: "🍽️", label: "Meal Menu" },

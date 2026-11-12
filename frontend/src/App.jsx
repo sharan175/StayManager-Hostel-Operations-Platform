@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "./config/api.js";
+
+const API = API_BASE_URL;
 
 
 
@@ -79,7 +82,7 @@ const handleLogin = async () => {
   }
 
   try {
-    const res = await fetch("http://localhost:3000/auth/login", {
+    const res = await fetch(`${API}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -121,7 +124,7 @@ const handleLogin = async () => {
 
 const fetchUser = async () => {
   try {
-    const res = await fetch("http://localhost:3000/auth/user", { credentials: "include" });
+    const res = await fetch(`${API}/auth/user`, { credentials: "include" });
     const data = await res.json();
     if (data.user) {
       setUser(data.user);
@@ -142,12 +145,12 @@ useEffect(() => {
 
  const handleLogout = async () => {
   try {
-    await fetch("http://localhost:3000/auth/logout", {
+    await fetch(`${API}/auth/logout`, {
       method: "GET",
       credentials: "include",
     });
 
-    await fetchUser(); 
+    await fetchUser();
 
   } catch (err) {
     console.log(err);
@@ -267,7 +270,7 @@ useEffect(() => {
           outline: none;
           transition: border-color 0.2s;
           color: #0f172a;
-          background-color: #f1f5f9; 
+          background-color: #f1f5f9;
         }
         .input-field:focus { border-color: #2563eb; }
 
@@ -424,7 +427,7 @@ useEffect(() => {
   else if (role === "warden") navigate("/warden");
   else if (role === "cook") navigate("/cook");
   else if (role === "student") {
-    const feeRes = await fetch("http://localhost:3000/allocatecheck", { credentials: "include" });
+    const feeRes = await fetch(`${API}/allocatecheck`, { credentials: "include" });
     const feeData = await feeRes.json();
     if (feeData.fees_paid) navigate("/student");
     else navigate("/student/pay");
@@ -492,7 +495,7 @@ useEffect(() => {
             else if (role === "warden") navigate("/warden");
             else if (role === "cook") navigate("/cook");
             else if (role === "student") {
-            const feeRes = await fetch("http://localhost:3000/allocatecheck", { credentials: "include" });
+            const feeRes = await fetch(`${API}/allocatecheck`, { credentials: "include" });
             const feeData = await feeRes.json();
             if (feeData.fees_paid) navigate("/student/dashboard");
             else navigate("/student/pay");
@@ -741,7 +744,7 @@ useEffect(() => {
 
               </div>
               <div>
-                
+
                <label>Password</label>
               <input
               className="input-field"
@@ -756,7 +759,7 @@ useEffect(() => {
             </div>
           <button
              className="google-btn"
-             onClick={() => window.location.href = "http://localhost:3000/auth/google"}>
+             onClick={() => window.location.href = `${API}/auth/google`}>
              <img
              src="https://www.svgrepo.com/show/475656/google-color.svg"
              alt="Google"
@@ -775,9 +778,9 @@ useEffect(() => {
   >
     Sign up
   </span>
-</p> 
+</p>
              {error && <div className="error-box">⚠️ {error}</div>}
-             {success && <div className="success-box">✅ {success}</div>}      
+             {success && <div className="success-box">✅ {success}</div>}
             <button className="btn-primary" style={{ width: "100%", padding: 14, fontSize: "1rem" }} onClick={handleLogin}>
               Login to UniStay
             </button>

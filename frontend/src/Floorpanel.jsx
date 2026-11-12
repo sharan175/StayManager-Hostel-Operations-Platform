@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "./config/api.js";
 
-const API = "http://localhost:3000";
+const API = API_BASE_URL;
 
 export default function FloorPanel() {
   const [list, setList]         = useState([]);

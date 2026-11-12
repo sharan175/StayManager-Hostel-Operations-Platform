@@ -22,21 +22,32 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", 1);
+
+const allowedOrigins = (process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
+
+if (!allowedOrigins.includes("http://localhost:5173")) {
+  allowedOrigins.push("http://localhost:5173");
+}
+
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "mysecret",
     resave: false,
     saveUninitialized: false,
     cookie: {
-    secure: false,       
-    httpOnly: true,
-    sameSite: "lax",
-  }
+      secure: process.env.COOKIE_SECURE === "true",
+      httpOnly: true,
+      sameSite: process.env.COOKIE_SAMESITE || "lax",
+    }
   })
 );
 app.use(passport.initialize());
@@ -49,8 +60,8 @@ app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use("/", floorRoutes);  
-app.use("/", roomRoutes);    
+app.use("/", floorRoutes);
+app.use("/", roomRoutes);
 app.use("/fees", feesRoutes);
 app.use("/student", studentRoutes);
 app.use("/complaints", complaintsRoutes);

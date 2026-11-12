@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "./config/api.js";
 
-const API = "http://localhost:3000";
+const API = API_BASE_URL;
 const DEFAULT_DISH_IMG = "https://placehold.co/400x300/f1f5f9/94a3b8?text=No+Image";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────

@@ -48,12 +48,13 @@ export const redirectUser = async (req, res) => {
 
    
     const isProfileIncomplete = !user.name || !user.phone_no || !user.password; 
+    const frontendUrl = (process.env.FRONTEND_URL || process.env.CLIENT_URL || process.env.BACKEND_URL || "http://localhost:5173").replace(/\/+$/, "");
 
     if (isProfileIncomplete) {
-      return res.redirect("http://localhost:5173/complete-profile");
+      return res.redirect(`${frontendUrl}/complete-profile`);
     }
 
-    return res.redirect("http://localhost:5173/");
+    return res.redirect(`${frontendUrl}/`);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

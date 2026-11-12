@@ -36,12 +36,18 @@ passport.use(
   )
 );
 
+const googleCallbackURL =
+  process.env.GOOGLE_CALLBACK_URL ||
+  (process.env.NODE_ENV === "production"
+    ? `${(process.env.BASE_URL || process.env.FRONTEND_URL || "http://3.27.209.60").replace(/\/+$/, "")}/auth/google/callback`
+    : "/auth/google/callback");
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL: googleCallbackURL,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {

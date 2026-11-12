@@ -1,7 +1,10 @@
 
 services:
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
     container_name: staymanager-frontend
     ports:
       - "80:80"
@@ -11,9 +14,10 @@ services:
   backend:
     build: ./Backend
     container_name: staymanager-backend
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
+      PORT: 3000
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: "hostel_management "
@@ -21,6 +25,11 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://3.27.209.60/auth/google/callback}
+      SESSION_SECRET: ${SESSION_SECRET:-mysecret}
+      FRONTEND_URL: ${FRONTEND_URL:-http://3.27.209.60}
+      BASE_URL: ${BASE_URL:-http://3.27.209.60}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173,http://3.27.209.60}
     depends_on:
       - postgres
 

@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "./config/api.js";
+
 export default function SignUp() {
   return (
     <div style={{
@@ -132,7 +134,7 @@ export default function SignUp() {
         {/* Google Sign Up Button */}
         <button
           className="google-btn"
-          onClick={() => window.location.href = "http://localhost:3000/auth/google"}
+          onClick={() => window.location.href = `${API_BASE_URL}/auth/google`}
         >
           <img
             src="https://www.svgrepo.com/show/475656/google-color.svg"
